@@ -38,11 +38,11 @@ func GetProvider() *provider.Provider {
 		},
 		ConfigMeta: provider.ConfigMeta{
 			GetDefaultConfigTemplate: func(ctx context.Context) string {
-
-				return constants.Constants_37
+				return `regions
+	- "<xxxxx>"
+	- "<xxxxx>"`
 			},
 			Validation: func(ctx context.Context, config *viper.Viper) *schema.Diagnostics {
-
 				return nil
 			},
 		},
@@ -55,3 +55,4 @@ func GetProvider() *provider.Provider {
 		},
 	}
 }
+
