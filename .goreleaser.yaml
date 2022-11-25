@@ -1,4 +1,4 @@
-project_name: selefra-provider-alicloud
+project_name: selefra-provider-oci
 before:
   hooks:
     - go mod tidy
