@@ -19,7 +19,7 @@ func GetProvider() *provider.Provider {
 		TableList: GenTables(),
 		ClientMeta: schema.ClientMeta{
 			InitClient: func(ctx context.Context, clientMeta *schema.ClientMeta, config *viper.Viper) ([]any, *schema.Diagnostics) {
-				regions := config.GetStringSlice(constants.Providersregions)
+				regions := config.GetStringSlice("regions")
 
 				var ociConfig *oci_client.OciConfig
 
@@ -38,11 +38,16 @@ func GetProvider() *provider.Provider {
 		},
 		ConfigMeta: provider.ConfigMeta{
 			GetDefaultConfigTemplate: func(ctx context.Context) string {
-				return `regions
-	- "<xxxxx>"
-	- "<xxxxx>"`
+				return `# regions:
+# - "<xxxxx>"
+# - "<xxxxx>"`
 			},
 			Validation: func(ctx context.Context, config *viper.Viper) *schema.Diagnostics {
+				regions := config.GetStringSlice("regions")
+
+				if len(regions) == 0 {
+					return schema.NewDiagnostics().AddErrorMsg("analysis config err: no configuration")
+				}
 				return nil
 			},
 		},

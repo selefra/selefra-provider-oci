@@ -23,14 +23,11 @@ import (
 )
 
 func TestProvider_PullTable(t *testing.T) {
-
 	os.Setenv(constants.SELEFRADATABASEDSN, constants.Hostuserpostgrespasswordpasswordportdbnamepostgressslmodedisable)
 
 	wk := constants.Constants_38
 
-	config := `
-providers:
-`
+	config := ``
 	myProvider := GetProvider()
 
 	Pull(myProvider, config, wk, constants.Constants_39)
@@ -78,5 +75,5 @@ func Pull(myProvider *provider.Provider, config, workspace string, pullTables ..
 		panic(diagnostics.AddFatal(constants.Providerpulltableerrors, err.Error()).ToString())
 
 	}
-
 }
+
