@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"github.com/selefra/selefra-provider-oci/constants"
 	"github.com/selefra/selefra-provider-sdk/provider/schema"
-	"github.com/turbot/go-kit/helpers"
+	"github.com/selefra/selefra-utils/pkg/pointer"
 	"math"
 	"math/rand"
 	"net"
@@ -47,7 +47,6 @@ import (
 	"github.com/oracle/oci-go-sdk/v44/resourcesearch"
 	"github.com/oracle/oci-go-sdk/v44/streaming"
 	"github.com/oracle/oci-go-sdk/v44/vault"
-	"github.com/turbot/go-kit/types"
 )
 
 type session struct {
@@ -908,7 +907,7 @@ func getProviderFromCLIEnvironmentVariables() (oci_common.ConfigurationProvider,
 		getCLIEnvVariables(constants.REGION),
 		getCLIEnvVariables(constants.FINGERPRINT),
 		pemFileContent,
-		types.String(constants.Constants_31),
+		pointer.ToStringPointer(constants.Constants_31),
 	)
 	if cliApiKeyProvider != nil {
 		providers = append(providers, cliApiKeyProvider)
@@ -970,7 +969,7 @@ func GetDefaultRetryPolicy(taskClient any) *oci_common.RetryPolicy {
 	retryOnResponseCodes := func(r oci_common.OCIOperationResponse) bool {
 		if r.Response != nil && r.Response.HTTPResponse() != nil {
 			statusCode := strconv.Itoa(r.Response.HTTPResponse().StatusCode)
-			return (r.Error != nil && helpers.StringSliceContains([]string{constants.Constants_34, constants.Constants_35, constants.Constants_36}, statusCode))
+			return (r.Error != nil && in(statusCode, []string{constants.Constants_34, constants.Constants_35, constants.Constants_36}))
 		}
 		return false
 	}
@@ -993,3 +992,4 @@ func getExponentialBackoffRetryPolicy(n uint, minRetryDelay time.Duration, fn fu
 	policy := oci_common.NewRetryPolicy(n, fn, exponentialBackoff)
 	return &policy
 }
+

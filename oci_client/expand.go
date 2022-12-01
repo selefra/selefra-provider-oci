@@ -3,19 +3,19 @@ package oci_client
 import (
 	"context"
 	"fmt"
+	oci_common "github.com/oracle/oci-go-sdk/v44/common"
 	oci_common_auth "github.com/oracle/oci-go-sdk/v44/common/auth"
+
+	"github.com/oracle/oci-go-sdk/v44/identity"
 	"github.com/selefra/selefra-provider-oci/constants"
 	"github.com/selefra/selefra-provider-sdk/provider/schema"
+	"github.com/selefra/selefra-utils/pkg/pointer"
 	"net/http"
 	"os"
 	"path"
+	"sort"
 	"strconv"
 	"strings"
-
-	oci_common "github.com/oracle/oci-go-sdk/v44/common"
-	"github.com/oracle/oci-go-sdk/v44/identity"
-	"github.com/turbot/go-kit/helpers"
-	"github.com/turbot/go-kit/types"
 )
 
 func BuildRegionList() func(ctx context.Context, clientMeta *schema.ClientMeta, taskClient any, task *schema.DataSourcePullTask) []*schema.ClientTaskContext {
@@ -110,12 +110,22 @@ func getInvalidRegions(regions []string) []string {
 	var invalidRegions []string
 
 	for _, region := range regions {
-		if !helpers.StringSliceContains(ociRegions, region) {
+
+		if !in(region, ociRegions) {
 			invalidRegions = append(invalidRegions, region)
 		}
 	}
 
 	return invalidRegions
+}
+
+func in(target string, str_array []string) bool {
+	sort.Strings(str_array)
+	index := sort.SearchStrings(str_array, target)
+	if index < len(str_array) && str_array[index] == target {
+		return true
+	}
+	return false
 }
 
 func listAllCompartments(ctx context.Context, clientMeta *schema.ClientMeta, taskClient any, task *schema.DataSourcePullTask) ([]identity.Compartment, error) {
@@ -133,7 +143,7 @@ func listAllCompartments(ctx context.Context, clientMeta *schema.ClientMeta, tas
 
 	request := identity.ListCompartmentsRequest{
 		CompartmentId:          &session.TenancyID,
-		CompartmentIdInSubtree: types.Bool(true),
+		CompartmentIdInSubtree: pointer.ToBoolPointer(true),
 		RequestMetadata: oci_common.RequestMetadata{
 			RetryPolicy: GetDefaultRetryPolicy(taskClient),
 		},
@@ -147,7 +157,7 @@ func listAllCompartments(ctx context.Context, clientMeta *schema.ClientMeta, tas
 		}
 
 		for _, compartment := range response.Items {
-			if !helpers.StringSliceContains([]string{constants.CREATING, constants.DELETING, constants.DELETED}, types.ToString(compartment.LifecycleState)) {
+			if compartment.LifecycleState == "ACTIVE" || compartment.LifecycleState == "INACTIVE" {
 				compartments = append(compartments, compartment)
 			}
 		}
@@ -370,3 +380,4 @@ func getProviderForAPIkey(region string, config *OciConfig) (oci_common.Configur
 
 	return oci_common.ComposingConfigurationProvider(providers)
 }
+

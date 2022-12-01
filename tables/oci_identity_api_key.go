@@ -3,13 +3,10 @@ package tables
 import (
 	"context"
 	"github.com/oracle/oci-go-sdk/v44/common"
-	"strconv"
-
 	"github.com/oracle/oci-go-sdk/v44/identity"
-	"github.com/selefra/selefra-provider-sdk/provider/schema"
-	"github.com/selefra/selefra-provider-oci/table_schema_generator"
 	"github.com/selefra/selefra-provider-oci/oci_client"
-	"github.com/turbot/go-kit/helpers"
+	"github.com/selefra/selefra-provider-oci/table_schema_generator"
+	"github.com/selefra/selefra-provider-sdk/provider/schema"
 )
 
 type TableOciIdentityApiKeyGenerator struct {
@@ -53,11 +50,6 @@ func (x *TableOciIdentityApiKeyGenerator) GetDataSource() *schema.DataSource {
 
 			item, err := session.IdentityClient.ListApiKeys(ctx, request)
 			if err != nil {
-				if ociErr, ok := err.(common.ServiceError); ok {
-					if helpers.StringSliceContains([]string{"404"}, strconv.Itoa(ociErr.GetHTTPStatusCode())) {
-						return schema.NewDiagnosticsErrorPullTable(task.Table, nil)
-					}
-				}
 				return schema.NewDiagnosticsErrorPullTable(task.Table, err)
 			}
 
@@ -98,3 +90,4 @@ func (x *TableOciIdentityApiKeyGenerator) GetColumns() []*schema.Column {
 func (x *TableOciIdentityApiKeyGenerator) GetSubTables() []*schema.Table {
 	return nil
 }
+

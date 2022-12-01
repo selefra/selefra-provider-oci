@@ -7,7 +7,6 @@ require (
 	github.com/selefra/selefra-provider-sdk v0.0.14-0.20221124101442-bfcc51d511ec
 	github.com/selefra/selefra-utils v0.0.2
 	github.com/spf13/viper v1.14.0
-	github.com/turbot/go-kit v0.4.0
 )
 
 require (
@@ -78,3 +77,4 @@ require (
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
+
