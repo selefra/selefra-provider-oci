@@ -1,4 +1,4 @@
-# Provider: oci
+# Provider: OCI
 
 ## Latest Version 
 
@@ -11,7 +11,7 @@ v0.0.1
 # Install 
 
 ```
-selefre  provider install oci
+selefra provider install oci
 ```
 
 
