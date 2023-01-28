@@ -8,6 +8,8 @@ import (
 	"github.com/selefra/selefra-provider-sdk/provider/schema"
 	"github.com/selefra/selefra-utils/pkg/pointer"
 	"github.com/spf13/viper"
+	"os"
+	"strings"
 )
 
 var Version = constants.V
@@ -20,6 +22,22 @@ func GetProvider() *provider.Provider {
 		ClientMeta: schema.ClientMeta{
 			InitClient: func(ctx context.Context, clientMeta *schema.ClientMeta, config *viper.Viper) ([]any, *schema.Diagnostics) {
 				regions := config.GetStringSlice("regions")
+
+				if len(regions) == 0 {
+					regionData := os.Getenv("OCI_REGIONS")
+
+					var regionList []string
+
+					if regionData != "" {
+						regionList = strings.Split(regionData, ",")
+					}
+
+					regions = regionList
+				}
+
+				if len(regions) == 0 {
+					return nil, schema.NewDiagnostics().AddErrorMsg("analysis config err: no configuration")
+				}
 
 				var ociConfig *oci_client.OciConfig
 
@@ -39,15 +57,28 @@ func GetProvider() *provider.Provider {
 		ConfigMeta: provider.ConfigMeta{
 			GetDefaultConfigTemplate: func(ctx context.Context) string {
 				return `# regions:
-# - "<xxxxx>"
-# - "<xxxxx>"`
+# - ap-seoul-1
+# - us-phoenix-1`
 			},
 			Validation: func(ctx context.Context, config *viper.Viper) *schema.Diagnostics {
 				regions := config.GetStringSlice("regions")
 
 				if len(regions) == 0 {
+					regionData := os.Getenv("OCI_REGIONS")
+
+					var regionList []string
+
+					if regionData != "" {
+						regionList = strings.Split(regionData, ",")
+					}
+
+					regions = regionList
+				}
+
+				if len(regions) == 0 {
 					return schema.NewDiagnostics().AddErrorMsg("analysis config err: no configuration")
 				}
+
 				return nil
 			},
 		},
@@ -60,4 +91,3 @@ func GetProvider() *provider.Provider {
 		},
 	}
 }
-
